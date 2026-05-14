@@ -1,0 +1,34 @@
+{
+  "hooks": {
+    "pre_user_prompt": [
+      {
+        "command": "python \"c:/Users/27492/Projects/2D_Game_Thesis/hooks/timing.py\"",
+        "show_output": false
+      }
+    ],
+    "post_cascade_response": [
+      {
+        "command": "python \"c:/Users/27492/Projects/2D_Game_Thesis/hooks/timing.py\"",
+        "show_output": false
+      }
+    ],
+    "post_write_code": [
+      {
+        "command": "python \"c:/Users/27492/Projects/2D_Game_Thesis/hooks/timing.py\"",
+        "show_output": false
+      }
+    ],
+    "post_read_code": [
+      {
+        "command": "python \"c:/Users/27492/Projects/2D_Game_Thesis/hooks/timing.py\"",
+        "show_output": false
+      }
+    ],
+    "post_run_command": [
+      {
+        "command": "python \"c:/Users/27492/Projects/2D_Game_Thesis/hooks/timing.py\"",
+        "show_output": false
+      }
+    ]
+  }
+}
