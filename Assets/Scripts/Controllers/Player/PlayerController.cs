@@ -24,6 +24,9 @@ namespace TopDownShooter.Controllers.Player
         private Vector2 _moveInput;
         private Vector2 _lookInput;
         private bool _isFiring;
+        
+        // Track the current control scheme to swap aiming logic
+        private bool _isUsingGamepad;
 
         private void Awake()
         {
@@ -83,16 +86,27 @@ namespace TopDownShooter.Controllers.Player
         private void OnMove(InputAction.CallbackContext context)
         {
             _moveInput = context.ReadValue<Vector2>();
+            UpdateDeviceType(context);
         }
 
         private void OnLook(InputAction.CallbackContext context)
         {
             _lookInput = context.ReadValue<Vector2>();
+            UpdateDeviceType(context);
         }
 
         private void OnFire(InputAction.CallbackContext context)
         {
             _isFiring = context.ReadValueAsButton();
+            UpdateDeviceType(context);
+        }
+
+        private void UpdateDeviceType(InputAction.CallbackContext context)
+        {
+            if (context.control != null)
+            {
+                _isUsingGamepad = context.control.device is Gamepad;
+            }
         }
 
         private void Update()
@@ -114,20 +128,28 @@ namespace TopDownShooter.Controllers.Player
 
         private void HandleRotation()
         {
-            if (_lookInput == Vector2.zero) return;
-
-            // Check if we are using mouse or gamepad for looking
-            if (Mouse.current != null && lookAction.action.activeControl?.device == Mouse.current)
+            if (_isUsingGamepad)
             {
-                // Mouse position logic
-                Vector3 worldMousePos = _mainCamera.ScreenToWorldPoint(new Vector3(_lookInput.x, _lookInput.y, -_mainCamera.transform.position.z));
-                Vector2 lookDirection = (worldMousePos - transform.position).normalized;
-                _movement.LookAt(lookDirection);
+                // Gamepad dual-stick logic gives an absolute direction
+                if (_lookInput != Vector2.zero)
+                {
+                    _movement.LookAt(_lookInput);
+                }
             }
             else
             {
-                // Gamepad dual-stick logic
-                _movement.LookAt(_lookInput);
+                // Keyboard & Mouse logic: Character should look at the pointer position
+                if (Pointer.current != null)
+                {
+                    Vector2 pointerScreenPos = Pointer.current.position.ReadValue();
+                    
+                    // The absolute distance from the camera on the Z axis
+                    float zDistance = Mathf.Abs(_mainCamera.transform.position.z - transform.position.z);
+                    Vector3 worldPointerPos = _mainCamera.ScreenToWorldPoint(new Vector3(pointerScreenPos.x, pointerScreenPos.y, zDistance));
+                    
+                    Vector2 lookDirection = (worldPointerPos - transform.position).normalized;
+                    _movement.LookAt(lookDirection);
+                }
             }
         }
 
