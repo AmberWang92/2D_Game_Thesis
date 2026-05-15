@@ -10,10 +10,15 @@ namespace TopDownShooter.UnityAdapters.Input
         [SerializeField] private InputActionReference moveAction;
         [SerializeField] private InputActionReference lookAction;
         [SerializeField] private InputActionReference attackAction;
+        [SerializeField] private bool useMouseFireFallback = true;
 
-        public Vector2 Move => moveAction != null ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
+        private InputAction resolvedMoveAction;
+        private InputAction resolvedLookAction;
+        private InputAction resolvedAttackAction;
+
+        public Vector2 Move => resolvedMoveAction != null ? resolvedMoveAction.ReadValue<Vector2>() : Vector2.zero;
         public Vector2 AimWorldPosition { get; private set; }
-        public bool IsFireHeld => attackAction != null && attackAction.action.IsPressed();
+        public bool IsFireHeld => (resolvedAttackAction != null && resolvedAttackAction.IsPressed()) || (useMouseFireFallback && Mouse.current != null && Mouse.current.leftButton.isPressed);
 
         private void Awake()
         {
@@ -21,20 +26,25 @@ namespace TopDownShooter.UnityAdapters.Input
             {
                 worldCamera = Camera.main;
             }
+
+            PlayerInput playerInput = GetComponent<PlayerInput>();
+            resolvedMoveAction = ResolveAction(moveAction, playerInput, "Move");
+            resolvedLookAction = ResolveAction(lookAction, playerInput, "Look");
+            resolvedAttackAction = ResolveAction(attackAction, playerInput, "Attack");
         }
 
         private void OnEnable()
         {
-            moveAction?.action.Enable();
-            lookAction?.action.Enable();
-            attackAction?.action.Enable();
+            resolvedMoveAction?.Enable();
+            resolvedLookAction?.Enable();
+            resolvedAttackAction?.Enable();
         }
 
         private void OnDisable()
         {
-            moveAction?.action.Disable();
-            lookAction?.action.Disable();
-            attackAction?.action.Disable();
+            resolvedMoveAction?.Disable();
+            resolvedLookAction?.Disable();
+            resolvedAttackAction?.Disable();
         }
 
         private void Update()
@@ -56,9 +66,9 @@ namespace TopDownShooter.UnityAdapters.Input
                 return worldPosition;
             }
 
-            if (lookAction != null)
+            if (resolvedLookAction != null)
             {
-                Vector2 look = lookAction.action.ReadValue<Vector2>();
+                Vector2 look = resolvedLookAction.ReadValue<Vector2>();
 
                 if (look.sqrMagnitude > 0.001f)
                 {
@@ -67,6 +77,16 @@ namespace TopDownShooter.UnityAdapters.Input
             }
 
             return AimWorldPosition;
+        }
+
+        private static InputAction ResolveAction(InputActionReference actionReference, PlayerInput playerInput, string actionName)
+        {
+            if (actionReference != null)
+            {
+                return actionReference.action;
+            }
+
+            return playerInput != null ? playerInput.actions.FindAction(actionName, false) : null;
         }
     }
 }
