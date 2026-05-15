@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d085efaf6f9293e4e8ae3cc52417bd21, type: 3}
-  m_Name: PlayerBulletDef
+  m_Name: EnemyBulletDef
   m_EditorClassIdentifier: Assembly-CSharp::TopDownShooter.Data.ProjectileDefinitionSO
-  prefab: {fileID: 4445469035849228472, guid: 00f86e36075393242b23e824bc4214f6, type: 3}
+  prefab: {fileID: 4445469035849228472, guid: bd100ad8df599eb449c508ed4e58fb96, type: 3}
   damage: 1
-  lifetime: 1.5
+  lifetime: 2
   hitMask:
     serializedVersion: 2
-    m_Bits: 128
-  tint: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    m_Bits: 8
+  tint: {r: 1, g: 0, b: 1, a: 1}
