@@ -25,13 +25,7 @@ namespace TopDownShooter.Runtime.Weapons
 
         public bool TryFire(Vector2 ownerPosition, Vector2 targetPosition)
         {
-            if (config.ProjectileConfig == null)
-            {
-                Debug.LogError($"{nameof(WeaponController)} cannot fire because {nameof(WeaponConfig.ProjectileConfig)} is not assigned.", owner);
-                return false;
-            }
-
-            if (!fireRateGate.CanFire(Time.time))
+            if (config.ProjectileConfig == null || !fireRateGate.CanFire(Time.time))
             {
                 return false;
             }
