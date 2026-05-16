@@ -198,7 +198,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TopDownShooter.Gameplay.Combat.WeaponHolder
   definition: {fileID: 11400000, guid: 75f70c135717f2d4ea6b8f032b50e844, type: 2}
   muzzle: {fileID: 158590986035780797}
-  projectileParent: {fileID: 158590986035780797}
+  projectileParent: {fileID: 0}
 --- !u!1 &2713550128971433875
 GameObject:
   m_ObjectHideFlags: 0
