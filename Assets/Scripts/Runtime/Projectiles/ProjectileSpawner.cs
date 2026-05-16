@@ -1,5 +1,6 @@
 using TopDownShooter.Core.Health;
 using TopDownShooter.Data;
+using TopDownShooter.Runtime.Player;
 using TopDownShooter.Runtime.Weapons;
 using UnityEngine;
 
@@ -18,10 +19,33 @@ namespace TopDownShooter.Runtime.Projectiles
                 return;
             }
 
-            ProjectileView projectile = Instantiate(projectilePrefab, position, Quaternion.identity, projectileParent);
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            projectile.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+            Quaternion rotation = Quaternion.Euler(0f, 0f, angle);
+            Transform parent = ResolveParent(owner);
+            ProjectileView projectile = Instantiate(projectilePrefab, position, rotation, parent);
             projectile.Initialize(config, direction, ownerTeam, owner);
+        }
+
+        private Transform ResolveParent(GameObject owner)
+        {
+            if (projectileParent == null || owner == null)
+            {
+                return projectileParent;
+            }
+
+            if (projectileParent == owner.transform || projectileParent.IsChildOf(owner.transform))
+            {
+                Debug.LogWarning($"{nameof(ProjectileSpawner)} ignored a projectile parent under the firing owner. Use a scene-level projectile parent instead.", this);
+                return null;
+            }
+
+            if (projectileParent.GetComponentInParent<IDamageable>() != null || projectileParent.GetComponentInParent<PlayerFacade>() != null)
+            {
+                Debug.LogWarning($"{nameof(ProjectileSpawner)} ignored a projectile parent under a gameplay actor. Use a scene-level projectile parent instead.", this);
+                return null;
+            }
+
+            return projectileParent;
         }
     }
 }

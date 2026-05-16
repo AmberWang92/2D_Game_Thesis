@@ -16,11 +16,15 @@ namespace TopDownShooter.Runtime.Projectiles
 
         public void Initialize(ProjectileConfig config, Vector2 direction, Team ownerTeam, GameObject owner)
         {
+            Vector2 normalizedDirection = direction.normalized;
+
             this.config = config;
-            this.direction = direction.normalized;
+            this.direction = normalizedDirection;
             this.ownerTeam = ownerTeam;
             this.owner = owner;
             despawnTime = Time.time + config.Lifetime;
+            transform.SetParent(null, true);
+            transform.SetPositionAndRotation(transform.position, Quaternion.Euler(0f, 0f, Mathf.Atan2(normalizedDirection.y, normalizedDirection.x) * Mathf.Rad2Deg));
             initialized = true;
         }
 
