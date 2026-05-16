@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a15616afb7c6c40499b92b4c9024ca5d, type: 3}
   m_Name: WeaponConfig
   m_EditorClassIdentifier: Assembly-CSharp::TopDownShooter.Data.WeaponConfig
-  <ProjectileConfig>k__BackingField: {fileID: 0}
+  <ProjectileConfig>k__BackingField: {fileID: 11400000, guid: 4ec8e486a727f714f95483dcf32c22f1, type: 2}
   <FireRate>k__BackingField: 6
   <MuzzleOffset>k__BackingField: 0.5
