@@ -74,8 +74,8 @@ namespace TopDownShooter.Controllers.Game
             CurrentState = GameState.GameOver;
             OnGameOver?.Invoke();
             
-            // Optional: Pause the game
-            // Time.timeScale = 0f; 
+            // Pause the game
+            Time.timeScale = 0f; 
         }
     }
 }

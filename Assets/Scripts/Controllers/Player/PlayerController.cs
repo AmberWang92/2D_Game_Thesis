@@ -19,6 +19,7 @@ namespace TopDownShooter.Controllers.Player
 
         private MovementComponent _movement;
         private WeaponSystem _weaponSystem;
+        private HealthComponent _health;
         private Camera _mainCamera;
 
         private Vector2 _moveInput;
@@ -32,11 +33,17 @@ namespace TopDownShooter.Controllers.Player
         {
             _movement = GetComponent<MovementComponent>();
             _weaponSystem = GetComponent<WeaponSystem>();
+            _health = GetComponent<HealthComponent>();
             _mainCamera = Camera.main;
         }
 
         private void OnEnable()
         {
+            if (_health != null)
+            {
+                _health.OnDied.AddListener(HandleDeath);
+            }
+
             if (moveAction != null)
             {
                 moveAction.action.Enable();
@@ -61,6 +68,11 @@ namespace TopDownShooter.Controllers.Player
 
         private void OnDisable()
         {
+            if (_health != null)
+            {
+                _health.OnDied.RemoveListener(HandleDeath);
+            }
+
             if (moveAction != null)
             {
                 moveAction.action.performed -= OnMove;
@@ -159,6 +171,18 @@ namespace TopDownShooter.Controllers.Player
             {
                 _weaponSystem.Fire();
             }
+        }
+
+        private void HandleDeath()
+        {
+            // Trigger game over state if GameManager exists
+            if (TopDownShooter.Controllers.Game.GameManager.Instance != null)
+            {
+                TopDownShooter.Controllers.Game.GameManager.Instance.TriggerGameOver();
+            }
+            
+            // Disable the player to visually "die" and stop processing updates
+            gameObject.SetActive(false);
         }
     }
 }
