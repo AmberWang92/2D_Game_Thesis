@@ -267,3 +267,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TopDownShooter.Components.WeaponSystem
   currentWeapon: {fileID: 11400000, guid: 68b71861ed44bfc4f994d26eac513f47, type: 2}
   firePoint: {fileID: 78253634498121468}
+  targetTag: Player

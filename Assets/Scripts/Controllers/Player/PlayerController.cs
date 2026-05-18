@@ -175,6 +175,8 @@ namespace TopDownShooter.Controllers.Player
 
         private void HandleDeath()
         {
+            Debug.Log("[PlayerController] HandleDeath triggered! Disabling player and notifying GameManager.");
+            
             // Trigger game over state if GameManager exists
             if (TopDownShooter.Controllers.Game.GameManager.Instance != null)
             {

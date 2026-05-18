@@ -29,6 +29,8 @@ namespace TopDownShooter.Components
             if (_isDead) return;
 
             _currentHealth -= amount;
+            Debug.Log($"[HealthComponent] {gameObject.name} took {amount} damage! Remaining Health: {_currentHealth}");
+            
             OnDamageTaken?.Invoke();
             OnHealthChanged?.Invoke(_currentHealth, stats != null ? stats.maxHealth : 100f);
 
@@ -49,6 +51,7 @@ namespace TopDownShooter.Components
 
         private void Die()
         {
+            Debug.Log($"[HealthComponent] {gameObject.name} has died!");
             _isDead = true;
             OnDied?.Invoke();
         }

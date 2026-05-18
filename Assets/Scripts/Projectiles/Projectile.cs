@@ -20,9 +20,14 @@ namespace TopDownShooter.Projectiles
             _damageDealer = GetComponent<DamageDealer>();
         }
 
-        public void Initialize(float speed, float damage)
+        public void Initialize(float speed, float damage, string targetTag = "")
         {
             _damageDealer.SetDamage(damage);
+            
+            if (!string.IsNullOrEmpty(targetTag))
+            {
+                _damageDealer.SetTargetTag(targetTag);
+            }
             
             // Move forward (assuming Sprite's top is Up)
             _rb.linearVelocity = transform.up * speed; 

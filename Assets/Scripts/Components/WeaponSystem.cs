@@ -8,6 +8,7 @@ namespace TopDownShooter.Components
     {
         [SerializeField] private WeaponData currentWeapon;
         [SerializeField] private Transform firePoint;
+        [SerializeField] private string targetTag = "Enemy";
 
         private float _nextFireTime;
 
@@ -29,7 +30,12 @@ namespace TopDownShooter.Components
             
             if (projObj.TryGetComponent(out Projectile projectile))
             {
-                projectile.Initialize(currentWeapon.projectileSpeed, currentWeapon.damage);
+                projectile.Initialize(currentWeapon.projectileSpeed, currentWeapon.damage, targetTag);
+            }
+            else if (projObj.TryGetComponent(out DamageDealer damageDealer))
+            {
+                damageDealer.SetDamage(currentWeapon.damage);
+                damageDealer.SetTargetTag(targetTag);
             }
         }
 
