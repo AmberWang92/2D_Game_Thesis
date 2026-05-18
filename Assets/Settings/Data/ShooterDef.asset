@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc79bc94fde98274d841bbe6ff1bacea, type: 3}
   m_Name: ShooterDef
   m_EditorClassIdentifier: Assembly-CSharp::TopDownShooter.Data.EnemyDefinitionSO
-  prefab: {fileID: 4445469035849228472, guid: bd100ad8df599eb449c508ed4e58fb96, type: 3}
+  prefab: {fileID: 1582321142250208, guid: ec74e894f22446842b224b04eb8b963d, type: 3}
   behavior: 1
   moveSpeed: 2
   maxHP: 2

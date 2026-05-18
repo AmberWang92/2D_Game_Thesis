@@ -173,3 +173,89 @@ Same recipe as `PlayerBullet.prefab` but:
 - **Pool reuse readiness**: `EnemyController.OnEnable` resets HP, re-enables colliders, and resets the FSM to Idle so the same instance can be recycled by the M3 spawner without extra glue.
 - **Damage routing**: enemies don't reference the player. Their `ContactDamageDealer` only knows the `Player` layer mask, and `DamageDealer.TryApply` resolves any `IDamageable` it finds. No coupling between Enemy and PlayerController types.
 - **Aim hysteresis**: `EnemyAttackState` uses 1.15× attackRange as the exit threshold to prevent jitter between Chase and Attack at the boundary.
+
+---
+
+# Milestone 3 — Survival Loop
+
+Adds the run lifecycle (GameManager FSM), endless time-scaled spawning, score, HUD, and a Game Over panel with restart.
+
+## M3.1 SO assets (`Assets/Settings/Data/`)
+
+1. **Void Event Channel** → `GameStartedChannel.asset`.
+2. **Void Event Channel** → `GameOverChannel.asset`.
+3. **Int Event Channel** → `EnemyScoreChannel.asset` (per-kill score deltas).
+4. **Int Event Channel** → `ScoreChangedChannel.asset` (running total for the HUD).
+
+Re-open the existing **enemy prefabs** (`Chaser`, `Shooter`) and on `EnemyController`:
+- `killedChannel` → `EnemyKilledChannel` (unchanged from M2; SpawnDirector does not need it).
+- `scoreChannel` → `EnemyScoreChannel` *(new field added in M3)*.
+
+Re-open the **player prefab** (`Player`) and on `HealthComponent`:
+- `diedChannel` is already `PlayerDiedChannel` from M1. Leave it.
+
+## M3.2 Scene wiring
+
+In `SampleScene`, create a single empty GameObject `GameSystems` and add three components:
+
+### `GameManager`
+- `playerDiedChannel` → `PlayerDiedChannel`.
+- `gameStartedChannel` → `GameStartedChannel`.
+- `gameOverChannel` → `GameOverChannel`.
+- `autoStart` = true.
+
+### `ScoreService`
+- `enemyScoreChannel` → `EnemyScoreChannel`.
+- `gameStartedChannel` → `GameStartedChannel` (resets on each run).
+- `scoreChangedChannel` → `ScoreChangedChannel`.
+
+### `SpawnDirector`
+- `player` → Player transform; `worldCamera` → Main Camera; `game` → `GameSystems` (the GameManager).
+- `enemyPool` → array containing `ChaserDef` and `ShooterDef`.
+- `prewarmPerArchetype` = 4.
+- `spawnIntervalOverTime` curve: starts ~2.0 at t=0, drops to ~0.4 by t=120.
+- `concurrentCapOverTime` curve: starts at 4 at t=0, rises to ~24 by t=120.
+- `spawnRingMargin` = 2; `warmupDelay` = 1.5.
+
+Remove any hand-placed enemies from the scene — the director is now the sole source of enemies.
+
+## M3.3 UI (Canvas)
+
+Create a UI Canvas (Screen Space — Overlay) with an EventSystem.
+
+### HUD anchored at the top
+Three `TextMeshProUGUI` elements (`HPText`, `TimeText`, `ScoreText`) plus a `HUDController` component on the Canvas (or any child) wired to:
+- `playerHealth` → Player's `HealthComponent`.
+- `game` → `GameSystems` GameManager.
+- `scoreChangedChannel` → `ScoreChangedChannel`.
+- `hpText`, `scoreText`, `timeText` → the three TMP labels.
+
+### GameOverPanel (child Panel of the Canvas)
+- A `Panel` GameObject `GameOverPanel` (Image dimmer) containing:
+  - `FinalScoreText` (TMP), `SurvivedText` (TMP), and a `RestartButton` (UI Button).
+- Add `GameOverPanel` component to the panel and wire:
+  - `gameOverChannel` → `GameOverChannel`.
+  - `game` → `GameSystems`; `score` → `GameSystems` (ScoreService).
+  - `root` → the panel itself (will be hidden in Awake).
+  - `finalScoreText`, `survivedText`, `restartButton` → corresponding UI nodes.
+
+The panel will be hidden at start and shown automatically when `GameOverChannel` raises; the button reloads the active scene via `GameManager.RestartScene()`.
+
+## M3.4 Smoke test
+
+1. Press Play. After the 1.5s warmup, enemies start streaming in from just outside the camera.
+2. HUD shows HP, score climbing on kills, and a `m:ss` timer.
+3. Difficulty curve increases the cap and decreases the interval as time progresses.
+4. When the player's HP hits 0:
+   - `HealthComponent` raises `PlayerDiedChannel`.
+   - `GameManager` transitions to `GameOverState` and raises `GameOverChannel`.
+   - `SpawnDirector` stops spawning (gated on `game.IsRunning`).
+   - `GameOverPanel` appears with final score + duration; clicking Restart reloads `SampleScene`.
+
+## M3.5 Notes on design
+
+- **One direction of data flow**: enemies raise `EnemyScoreChannel`; `ScoreService` accumulates and re-broadcasts on `ScoreChangedChannel`; HUD only reads. No system polls another system's state.
+- **Spawner uses the same generic pool as projectiles**: one `ObjectPool<EnemyController>` per archetype, keyed by `EnemyDefinitionSO`. `EnemyController.Despawned` is what returns the instance and decrements `_aliveCount` — the void `EnemyKilledChannel` is intentionally NOT used for that (it would conflate death with deactivation, which are separated by `despawnDelay`).
+- **No parenting footgun for enemies**: `SpawnDirector` instantiates enemy prefabs with no parent, mirroring the constraint enforced on `WeaponHolder.projectileParent` after the M2 slow-bullet bug.
+- **Restart by scene reload**: the run is stateless across reloads — every SO event channel is intact, but all MonoBehaviour subscribers are torn down by Unity on unload and freshly re-added on load, so no manual unsubscribe gymnastics are required.
+- **Difficulty curves over code constants**: `spawnIntervalOverTime` and `concurrentCapOverTime` are `AnimationCurve`s on the spawner, so tuning is a designer task (Inspector), not a programmer task.

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc79bc94fde98274d841bbe6ff1bacea, type: 3}
   m_Name: ChaserDef
   m_EditorClassIdentifier: Assembly-CSharp::TopDownShooter.Data.EnemyDefinitionSO
-  prefab: {fileID: 0}
+  prefab: {fileID: 1582321142250208, guid: da93bac1185648c4492ffa66313f3ab6, type: 3}
   behavior: 0
   moveSpeed: 3
   maxHP: 3

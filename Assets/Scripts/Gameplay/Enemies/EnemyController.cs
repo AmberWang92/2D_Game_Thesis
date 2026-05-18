@@ -23,12 +23,18 @@ namespace TopDownShooter.Gameplay.Enemies
         [SerializeField] private WeaponHolder weapon;            // shooter only
         [SerializeField] private ContactDamageDealer contact;    // chaser only
         [SerializeField] private Transform aimPivot;             // optional muzzle pivot
-        [Tooltip("Optional channel raised when this enemy dies (used by ScoreService in M3).")]
+        [Tooltip("Optional channel raised when this enemy dies (used by SpawnDirector / analytics).")]
         [SerializeField] private VoidEventChannelSO killedChannel;
+        [Tooltip("Optional channel raised on death with this enemy's scoreValue (consumed by ScoreService).")]
+        [SerializeField] private IntEventChannelSO scoreChannel;
         [SerializeField, Min(0f)] private float despawnDelay = 0.2f;
 
         private StateMachine<EnemyController> _fsm;
         private bool _despawnScheduled;
+
+        /// <summary>Raised after <see cref="DoDespawn"/> deactivates this instance.
+        /// SpawnDirector uses this to return the enemy to its pool.</summary>
+        public event System.Action<EnemyController> Despawned;
 
         public EnemyDefinitionSO Definition => definition;
         public EnemySensor Sensor => sensor;
@@ -91,6 +97,7 @@ namespace TopDownShooter.Gameplay.Enemies
         private void DoDespawn()
         {
             gameObject.SetActive(false);
+            Despawned?.Invoke(this);
         }
 
         private void ApplyDefinition()
@@ -137,6 +144,7 @@ namespace TopDownShooter.Gameplay.Enemies
         private void HandleDied()
         {
             killedChannel?.Raise();
+            if (definition != null) scoreChannel?.Raise(definition.scoreValue);
             ChangeState(new EnemyDeadState());
         }
     }

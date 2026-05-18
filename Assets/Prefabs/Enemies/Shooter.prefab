@@ -183,6 +183,7 @@ MonoBehaviour:
   contact: {fileID: 0}
   aimPivot: {fileID: 7539811709682772009}
   killedChannel: {fileID: 11400000, guid: dc844cfdeb3812f4b89a41cc51741b77, type: 2}
+  scoreChannel: {fileID: 11400000, guid: 6ddde337f378959468ae64ff7ac86e29, type: 2}
   despawnDelay: 0.2
 --- !u!114 &3725993605419452016
 MonoBehaviour:
