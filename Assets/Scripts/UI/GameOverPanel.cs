@@ -29,22 +29,18 @@ namespace TopDownShooter.UI
 
         private void Awake()
         {
-            if (root != null) root.SetActive(false);
-            if (restartButton != null) restartButton.onClick.AddListener(OnRestartClicked);
-        }
-
-        private void OnEnable()
-        {
+            // IMPORTANT: subscribe BEFORE we (potentially) deactivate our own
+            // GameObject below. If `root` is this GameObject, SetActive(false)
+            // would otherwise prevent OnEnable from ever running and the panel
+            // would never be shown when the channel fires.
             if (gameOverChannel != null) gameOverChannel.OnRaised += Show;
-        }
-
-        private void OnDisable()
-        {
-            if (gameOverChannel != null) gameOverChannel.OnRaised -= Show;
+            if (restartButton != null) restartButton.onClick.AddListener(OnRestartClicked);
+            if (root != null) root.SetActive(false);
         }
 
         private void OnDestroy()
         {
+            if (gameOverChannel != null) gameOverChannel.OnRaised -= Show;
             if (restartButton != null) restartButton.onClick.RemoveListener(OnRestartClicked);
         }
 
