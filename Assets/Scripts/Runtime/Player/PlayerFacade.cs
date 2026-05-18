@@ -36,7 +36,7 @@ namespace TopDownShooter.Runtime.Player
                 return;
             }
 
-            eventBus = new GameplayEventBus();
+            eventBus = GameplayEventBus.Global;
             health = new Health(config.MaxHealth);
             health.Died += HandleDied;
 

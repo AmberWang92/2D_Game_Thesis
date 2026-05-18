@@ -34,14 +34,19 @@ namespace TopDownShooter.Runtime.Spawning
 
         public EnemyFacade SpawnEnemy()
         {
-            if (enemyPrefab == null || targetProvider == null || projectileSpawner == null)
+            return SpawnEnemy(enemyPrefab);
+        }
+
+        public EnemyFacade SpawnEnemy(EnemyFacade prefab)
+        {
+            if (prefab == null || targetProvider == null || projectileSpawner == null)
             {
                 Debug.LogError($"{nameof(EnemySpawner)} is missing required dependencies.", this);
                 return null;
             }
 
             Vector2 spawnPosition = GetSpawnPosition();
-            EnemyFacade enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity, enemyParent);
+            EnemyFacade enemy = Instantiate(prefab, spawnPosition, Quaternion.identity, enemyParent);
             enemy.Initialize(targetProvider, projectileSpawner);
             return enemy;
         }

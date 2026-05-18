@@ -5,6 +5,8 @@ namespace TopDownShooter.Core.Events
 {
     public sealed class GameplayEventBus
     {
+        public static GameplayEventBus Global { get; } = new GameplayEventBus();
+
         private readonly Dictionary<Type, Delegate> subscribers = new Dictionary<Type, Delegate>();
 
         public void Subscribe<TEvent>(Action<TEvent> handler)
