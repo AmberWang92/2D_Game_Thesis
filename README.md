@@ -1,92 +1,227 @@
-# 2D_Game_Thesis
+# AI-Assisted Unity Game Development Research
 
-This repository pairs a Unity URP project with a small telemetry toolkit that logs
-Windsurf activity while iterating on the game. The hooks (Python scripts inside
-`/hooks`) capture every prompt/response cycle, code edit, file read, and shell
-command so you can analyze how Cascade contributes to the thesis work.
+## Thesis Overview
 
-## Repo layout (high level)
+This repository contains the implementation, experimental data, and research materials for a bachelor thesis focused on **AI-assisted game development using Large Language Models (LLMs)** in the Unity game engine.
 
-| Path | Purpose |
-| ---- | ------- |
-| `Assets/` | Unity scenes, scripts, and rendering assets for the 2D thesis game. |
-| `hooks/` | Python utilities that Windsurf calls before/after prompts, code edits, reads, and commands. |
-| `hooks/*.jsonl` | Append-only metric logs produced by the hook scripts. |
+The research investigates how different LLMs perform as programming assistants during the development of a small-scale Unity 2D Top-Down Shooter game. The study compares:
 
-## What the hooks do
+- Claude Opus 4.7
+- GPT-5.5
+- Gemini 3.1 Pro
 
-### `hooks/timing.py`
+The project evaluates:
+- Code correctness
+- First-shot success rate
+- Debugging frequency
+- Human implementation workload
+- Architectural quality
+- Prompt workflow efficiency
 
-This is the primary entry point invoked by Windsurf. It reacts to four
-`agent_action_name` values and writes JSONL records:
+---
 
-1. **`pre_user_prompt`** – caches metadata about an incoming prompt (model, start
-   timestamp, preview text, prompt type, and whether `#nolog` was present).
-2. **`post_cascade_response`** – finalizes a response entry by computing total
-   latency, response length, prompt classification, and writing to
-   `response-metrics.jsonl`.
-3. **`post_write_code`** – aggregates added/removed lines per edit and logs them
-   to `code-metrics.jsonl` along with language, file path, and prompt type.
-4. **`post_read_code` / `post_run_command`** – captures each read or shell
-   command issued by Cascade so you can count supporting actions per response.
+# Research Goal
 
-Key features:
+This thesis explores whether **“Vibe Coding” workflows** can successfully support Unity game development and which LLM performs best under real production-like conditions.
 
-- **Prompt tags** – the script inspects the text of each user request for the
-  tags listed below and stores the normalized `prompt_type` in every metric
-  record:
+The study focuses on:
+- AI-assisted Unity development workflows
+- Prompt engineering strategies
+- Maintainable game architecture generation
+- Human-AI collaboration efficiency
 
-  | Tag | Stored prompt type |
-  | --- | ------------------ |
-  | `#context` | `contextual_prompting` |
-  | `#task` | `task_prompt` |
-  | `#debug` | `debug_prompt` |
-  | `#refine` | `refinement_prompt` |
-  | `#evaluation` | `evaluation_prompt` |
-  | *(none of the above)* | `normal` |
+---
 
-- **Opt-out switch** – including `#nolog` anywhere in the prompt suppresses all
-  logging for that trajectory.
+# Research Questions
 
-### `hooks/stats.py`
+1. Can “Vibe Coding” workflows successfully support Unity game development?
+2. Which LLM is the most suitable for AI-assisted Unity game development?
+3. What prompting strategies lead to more maintainable and scalable game code?
 
-Runs a quick terminal summary over the JSONL files: total responses, latency
-percentiles, models used, code line deltas per language, and recent edits.
+---
 
-```powershell
-python hooks/stats.py
-```
+# Experimental Setup
 
-### `hooks/dashboard.py`
+## Development Environment
 
-Serves an interactive Chart.js dashboard at `http://localhost:8787`. The page
-renders:
+- Unity 2D
+- C#
+- Windsurf IDE
+- Git + GitHub version control
 
-- KPI cards (responses, latency, lines generated, files touched)
-- Latency & code-volume charts per prompt
-- Thesis prompt-type breakdowns using the tags above
-- Model-to-model comparisons
-- SVG “file lifecycle” graphs showing sequential edits per file
-- Recent response table for quick inspection
+## Compared Models
 
-Start it with:
+| Model | Reasoning Mode |
+|---|---|
+| Claude Opus 4.7 | Medium |
+| GPT-5.5 | Low Thinking |
+| Gemini 3.1 Pro | High Thinking |
 
-```powershell
-python hooks/dashboard.py
-```
+---
 
-> Tip: Windsurf automatically opens a preview tab when the server starts.
+# Prototype Scope
 
-## Working with the metrics
+A small-scale **2D Top-Down Shooter** prototype was developed with three core gameplay milestones:
 
-Each log entry is plain JSON, so you can ingest it with pandas, SQLite, or
-anything else that understands JSON Lines. Typical workflow:
+## Milestone 1 — Player Movement
+- WASD movement
+- Shooting system
+- Physics setup
 
-1. Reproduce a series of prompts or coding sessions in Windsurf.
-2. Inspect progress live via the dashboard, or run `stats.py` for a terminal
-   snapshot.
-3. Use the prompt tags to segment data—for example, contrast `#task` prompts
-   with `#debug` prompts to see how long different phases take.
+## Milestone 2 — Enemy AI
+- Enemy movement
+- Enemy attack behavior
+- Chaser enemy logic
 
-This documentation should give you (or future collaborators) enough context to
-extend the hooks or replace them with your own telemetry if needed.
+## Milestone 3 — Survival Loop
+- Enemy spawning
+- Health system
+- UI system
+- Survival gameplay loop
+
+---
+
+# Research Workflow
+
+The experiment followed a strict AI-assisted workflow:
+
+1. Same contextual prompt given to all models
+2. Task prompts executed milestone-by-milestone
+3. Manual implementation of AI instructions inside Unity
+4. Debug prompts used only when issues occurred
+5. Repeat until milestone completion
+
+---
+
+# No-Touch Policy
+
+A strict **“No-Touch Policy”** was applied:
+
+> Human developers were not allowed to manually modify source code.
+
+All fixes, changes, and implementations had to be performed through AI prompting only.
+
+This policy improved fairness and reduced hidden human intervention.
+
+---
+
+# Data Collection
+
+The following data categories were collected:
+
+## Interaction Metrics
+- Total prompt count
+- Prompt type breakdown
+- Debug prompt frequency
+
+## Performance Metrics
+- First-shot success rate
+- Compilation failures
+- Runtime errors
+- Error type categories
+
+## Effort Metrics
+- AI response time
+- Manual implementation time
+- Lines of code generated
+
+---
+
+# Key Findings
+
+## Claude Opus 4.7
+- Highest first-shot success rate
+- Fewest debugging prompts
+- Strongest Unity contextual understanding
+- Most scalable architecture
+- Largest code volume
+- Highest manual implementation workload
+
+## GPT-5.5
+- Strong clean architecture tendencies
+- Moderate implementation effort
+- Balanced performance/workload trade-off
+- Weaker Unity-specific engine awareness
+
+## Gemini 3.1 Pro
+- Fastest implementation workflow
+- Smallest code volume
+- Highest bug frequency
+- Best suited for rapid prototyping
+
+---
+
+# Main Research Insight
+
+> Higher code correctness does not necessarily lead to higher development efficiency.
+
+Claude generated the most reliable code, but its large architecture significantly increased human implementation time.
+
+Gemini generated less reliable code, but faster implementation due to smaller code volume.
+
+GPT-5.5 provided a middle-ground balance between architecture quality and implementation effort.
+
+---
+
+# Ethical Considerations
+
+This research:
+- Did not involve personal data collection
+- Followed academic transparency principles
+- Clearly documented AI usage
+- Included both successful and failed AI outputs
+- Applied systematic evaluation methods
+
+AI-generated code was always manually reviewed and tested inside Unity before evaluation.
+
+---
+
+# Sustainability
+
+The research reflects sustainable development principles by exploring:
+- Faster prototyping workflows
+- Reduced repetitive programming tasks
+- Lower technical barriers for small development teams
+
+The study also acknowledges the computational cost of modern LLM systems.
+
+---
+
+# Technologies Used
+
+## Game Development
+- Unity
+- C#
+- Git
+- GitHub
+
+## Data Analysis
+- Python
+- Pandas
+- Matplotlib
+
+---
+
+# Future Research
+
+Possible future directions:
+- Larger-scale Unity projects
+- Multiplayer game development
+- AI-assisted graphics programming
+- Long-term maintainability studies
+- Advanced prompt engineering workflows
+- Multi-developer experimental environments
+
+---
+
+# Author
+
+Bachelor Thesis Project  
+Game Development / AI-Assisted Software Engineering  
+Jamk University of Applied Sciences
+
+---
+
+# License
+
+This repository is for academic and research purposes.
